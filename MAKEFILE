@@ -9,7 +9,7 @@ ensure_deps:
 build:
 	@ echo "🛠  Start building 🛠"
 	@ go build -a \
-			 -o "./Bot-PT"
+			 -o bin/bot "./internal"
 	@ echo "🛠  Build done 🛠"
 
 test:

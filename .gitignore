@@ -1,3 +1,5 @@
 /Bot-PT
+/bin
 
 .DS_Store
+.env
