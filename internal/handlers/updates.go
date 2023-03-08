@@ -21,11 +21,11 @@ func shouldAct(update tgbotapi.Update) bool {
 }
 
 func extractResponseTxt(chatgptResponse *chatgpt.Response) string {
-	if chatgptResponse == nil {
+	if chatgptResponse == nil || len(chatgptResponse.Choices) == 0 {
 		return "Not sure what to answer"
 	}
 
-	return chatgptResponse.Choices[0].Text
+	return chatgptResponse.Choices[0].Message.Content
 }
 
 func buildMessage(chatID int64, replyID int, text string) tgbotapi.MessageConfig {

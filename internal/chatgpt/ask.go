@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	model            = "text-davinci-003"
-	temperature      = 0.6
+	model            = "gpt-3.5-turbo-0301"
+	temperature      = 1
 	maxTokens        = 256
 	topP             = 1
 	frequencyPenalty = 0
@@ -19,16 +19,22 @@ var (
 	logprobs         = 0
 )
 
-type request struct {
-	Model            string  `json:"model"`
-	Prompt           string  `json:"prompt"`
-	Temperature      float32 `json:"temperature"`
-	MaxTokens        int8    `json:"max_tokens"`
-	TopP             int8    `json:"top_p"`
-	FrequencyPenalty int8    `json:"frequency_penalty"`
-	PresencePenalty  int8    `json:"presence_penalty"`
-	Logprobs         int8    `json:"logprobs"`
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
+
+type request struct {
+	Model       string    `json:"model"`
+	Messages    []Message `json:"messages"`
+	Temperature float32   `json:"temperature"`
+	MaxTokens   int       `json:"max_tokens"`
+}
+
+//TopP             int8       `json:"top_p"`
+//FrequencyPenalty int8       `json:"frequency_penalty"`
+// PresencePenalty  int8       `json:"presence_penalty"`
+// Logprobs         int8       `json:"logprobs"`
 
 // type probs struct {
 // 	Tokens        []string  `json:"tokens"`
@@ -38,16 +44,15 @@ type request struct {
 // }
 
 type choice struct {
-	Text  string `json:"text"`
-	Index int8   `json:"index"`
-	// Logprobs     probs  `json:"logprobs,omitempty"`
-	FinishReason string `json:"finish_reason"`
+	Message      Message `json:"message"`
+	Index        int8    `json:"index"`
+	FinishReason string  `json:"finish_reason"`
 }
 
 type usage struct {
-	PromptTokens     int8 `json:"prompt_tokens"`
-	CompletionTokens int8 `json:"completion_tokens"`
-	TotalTokens      int8 `json:"total_tokens"`
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
 }
 
 type Response struct {
@@ -62,14 +67,15 @@ type Response struct {
 func Ask(question string) *Response {
 	// Marshal the user object into a JSON-encoded byte slice
 	body, err := json.Marshal(request{
-		Model:            model,
-		Prompt:           question,
-		Temperature:      float32(temperature),
-		MaxTokens:        int8(maxTokens),
-		TopP:             int8(topP),
-		FrequencyPenalty: int8(frequencyPenalty),
-		PresencePenalty:  int8(presencePenalty),
-		Logprobs:         int8(logprobs),
+		Model: model,
+		Messages: []Message{
+			{
+				Role:    "user",
+				Content: question,
+			},
+		},
+		Temperature: float32(temperature),
+		MaxTokens:   1000,
 	})
 
 	if err != nil {
@@ -83,7 +89,7 @@ func Ask(question string) *Response {
 	// Create a new request with the desired URL and HTTP method
 	req, err := http.NewRequest(
 		"POST",
-		"https://api.openai.com/v1/completions",
+		"https://api.openai.com/v1/chat/completions",
 		bytes.NewBuffer(body),
 	)
 	req.Header.Set("Content-Type", "application/json")
@@ -102,6 +108,9 @@ func Ask(question string) *Response {
 		panic(err)
 	}
 
+	// Print the string
+	fmt.Println(string(bodyBytes))
+
 	var response Response
 
 	err = json.Unmarshal(bodyBytes, &response)
@@ -110,9 +119,6 @@ func Ask(question string) *Response {
 
 		return nil
 	}
-
-	// Print the string
-	fmt.Println(string(bodyBytes))
 
 	return &response
 }
