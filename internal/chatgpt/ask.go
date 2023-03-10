@@ -31,7 +31,7 @@ type request struct {
 	MaxTokens   int       `json:"max_tokens"`
 }
 
-type choice struct {
+type Choice struct {
 	Message      Message `json:"message"`
 	Index        int8    `json:"index"`
 	FinishReason string  `json:"finish_reason"`
@@ -48,7 +48,7 @@ type Response struct {
 	Object  string   `json:"object"`
 	Created int      `json:"created"`
 	Model   string   `json:"model"`
-	Choices []choice `json:"choices,omitempty"`
+	Choices []Choice `json:"choices,omitempty"`
 	Usage   usage    `json:"usage"`
 }
 
