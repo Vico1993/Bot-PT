@@ -24,12 +24,12 @@ func TestBuildReqBody(t *testing.T) {
 
 func TestBuildRequest(t *testing.T) {
 	type TestStruct struct {
-		test bool
+		Test bool
 	}
 
 	keyNeeed := []string{"Content-Type", "Authorization"}
 
-	body, _ := json.Marshal(TestStruct{test: true})
+	body, _ := json.Marshal(TestStruct{Test: true})
 
 	req := buildRequest(body)
 
