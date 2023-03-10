@@ -52,8 +52,8 @@ type Response struct {
 	Usage   usage    `json:"usage"`
 }
 
-func Ask(question string) *Response {
-	// Marshal the user object into a JSON-encoded byte slice
+// Marshal the user object into a JSON-encoded byte slice
+func buildReqBody(question string) []byte {
 	body, err := json.Marshal(request{
 		Model: model,
 		Messages: []Message{
@@ -71,22 +71,38 @@ func Ask(question string) *Response {
 		return nil
 	}
 
-	// Create a new HTTP client
-	client := &http.Client{}
+	return body
+}
 
-	// Create a new request with the desired URL and HTTP method
+// Create a new request with the desired URL and HTTP method
+func buildRequest(body []byte) *http.Request {
 	req, err := http.NewRequest(
 		"POST",
 		"https://api.openai.com/v1/chat/completions",
 		bytes.NewBuffer(body),
 	)
+
 	if err != nil {
-		fmt.Println("New Request failed")
+		fmt.Println("Error building request:", err.Error())
 		return nil
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("OPENAI_TOKEN"))
+
+	return req
+}
+
+func Ask(question string) *Response {
+	body := buildReqBody(question)
+	if body == nil {
+		return nil
+	}
+
+	req := buildRequest(body)
+
+	// Create a new HTTP client
+	client := &http.Client{}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -105,7 +121,6 @@ func Ask(question string) *Response {
 	fmt.Println(string(bodyBytes))
 
 	var response Response
-
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		fmt.Println("Response parse error", err.Error())
