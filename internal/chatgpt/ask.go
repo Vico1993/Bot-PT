@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	model            = "gpt-3.5-turbo-0301"
-	temperature      = 1
-	maxTokens        = 256
-	topP             = 1
-	frequencyPenalty = 0
-	presencePenalty  = 0
-	logprobs         = 0
+	model       = "gpt-3.5-turbo-0301"
+	temperature = 1
+	// maxTokens        = 256
+	// topP             = 1
+	// frequencyPenalty = 0
+	// presencePenalty  = 0
+	// logprobs         = 0
 )
 
 type Message struct {
@@ -30,18 +30,6 @@ type request struct {
 	Temperature float32   `json:"temperature"`
 	MaxTokens   int       `json:"max_tokens"`
 }
-
-//TopP             int8       `json:"top_p"`
-//FrequencyPenalty int8       `json:"frequency_penalty"`
-// PresencePenalty  int8       `json:"presence_penalty"`
-// Logprobs         int8       `json:"logprobs"`
-
-// type probs struct {
-// 	Tokens        []string  `json:"tokens"`
-// 	TokenLogprobs []float64 `json:"token_logprobs"`
-// 	top_logprobs  []       `json:"top_logprobs"`
-// 	TextOffset    []int     `json:"text_offset"`
-// }
 
 type choice struct {
 	Message      Message `json:"message"`
@@ -92,6 +80,11 @@ func Ask(question string) *Response {
 		"https://api.openai.com/v1/chat/completions",
 		bytes.NewBuffer(body),
 	)
+	if err != nil {
+		fmt.Println("New Request failed")
+		return nil
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("OPENAI_TOKEN"))
 
