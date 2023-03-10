@@ -47,9 +47,6 @@ func HandleUpdates(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 
 	response := chatgpt.Ask(update.Message.Text)
 
-	fmt.Println("EXTRACT")
-	fmt.Println(extractResponseTxt(response))
-
 	_, err := bot.Send(
 		buildMessage(
 			update.Message.Chat.ID,
